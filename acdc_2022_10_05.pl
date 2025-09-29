@@ -921,9 +921,9 @@ if($variable_ion_source){
 ### Constants and properties of generic compounds (charger ions, water...) ###
 
 # Values for constants
-$boltz=1.3806504e-23; # J/K
-$pi=3.14159265359;
-$Na=6.02214179e23;
+$boltz=1.380649e-23; # J/K
+$pi=3.141592653589793;
+$Na=6.02214076e23;
 $mass_conv=1.0/$Na/1000.0; # convert g/mol to kg
 $kcal_per_mol_to_J=4.184*1000.0/$Na;
 
