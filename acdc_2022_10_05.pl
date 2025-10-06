@@ -1556,7 +1556,6 @@ for($iline=1;$iline <= $number_of_lines;$iline++){
 				if($l_print_boundary){
 					print "Cluster $max_cluster: $label[$max_cluster]\n";
 				}
-				$comments[$max_cluster]="% Cluster $max_cluster: $label[$max_cluster]";
 				$num_from_label{"$label[$max_cluster]"} = $max_cluster;
 
 				# check if this is a monomer
@@ -1575,7 +1574,8 @@ for($iline=1;$iline <= $number_of_lines;$iline++){
 						$clust_radius[$max_cluster][0] = &calculate_radius(\@columns);
 					}
 				}
-				#print "$label[$max_cluster]: mass = $clust_mass[$max_cluster][0], radius =  $clust_radius[$max_cluster][0]\n";
+				$comments[$max_cluster]="% Cluster $max_cluster: $label[$max_cluster] mass: $clust_mass[$max_cluster][0] radius: $clust_radius[$max_cluster][0]";
+				# print "$label[$max_cluster]: mass = $clust_mass[$max_cluster][0], radius =  $clust_radius[$max_cluster][0] volume = $clust_volume[$max_cluster]\n";
 			}
 		}else{
 			print "Cannot understand this line of the input file. Line number: ".($iline+1)."\nData on line: $input_file[$iline]\ncolumns:$#columns\nnmol_types-1:".($nmol_types-1)."\n";
@@ -1892,7 +1892,6 @@ if($lloop){
 		$lpositive[$n_generic_neg] = 0;
 		$lneutral_cluster[$n_generic_neg] = 0;
 		$label[$n_generic_neg]=$label_generic_neg;
-		$comments[$n_generic_neg]="% Cluster $n_generic_neg: generic negative ion ";
 		$max_cluster_number=$n_generic_neg; 
 	
 		# get the "composition" of the cluster	
@@ -1908,6 +1907,7 @@ if($lloop){
 		if($l_bulk_density){
 			$clust_radius[$max_cluster_number][0] = ($mass_nion/$dens_nion/4.0*3.0/$pi)**(1.0/3.0);
 		}
+		$comments[$n_generic_neg]="% Cluster $n_generic_neg: generic negative ion mass: $mass_nion radius: $clust_radius[$n_generic_neg][0]";
 	}
 	if($include_generic_pos){
 		$n_generic_pos=$max_cluster_number+1;
@@ -1915,7 +1915,6 @@ if($lloop){
 		$lpositive[$n_generic_pos] = 1;
 		$lneutral_cluster[$n_generic_pos] = 0;
 		$label[$n_generic_pos]=$label_generic_pos;
-		$comments[$n_generic_pos]="% Cluster $n_generic_pos: generic positive ion ";
 		$max_cluster_number=$n_generic_pos;
 	
 		# get the "composition" of the cluster	
@@ -1931,6 +1930,7 @@ if($lloop){
 		if($l_bulk_density){
 			$clust_radius[$max_cluster_number][0] = ($mass_pion/$dens_pion/4.0*3.0/$pi)**(1.0/3.0);
 		}
+		$comments[$n_generic_pos]="% Cluster $n_generic_pos: generic positive ion mass: $mass_pion radius: $clust_radius[$n_generic_pos][0]";
 	}
 
 ################################################################################
@@ -9074,7 +9074,7 @@ for($iclus=1;$iclus<=$n_flux_out_max;$iclus++){
 				}else{
 					if($lneutral_cluster[$iclus]+$lneutral_cluster[$jclus] == 1){
 						$value_string = sprintf('%.14e',$fcr[$iclus][$jclus]*$coll_coef[$iclus][$jclus]);
-						$fcr_string = ", including ion enhancement " . sprintf('%.3g',$fcr[$iclus][$jclus]) . "*" . sprintf('%.2e',$coll_coef[$iclus][$jclus]);
+						$fcr_string = ", including ion enhancement " . sprintf('%.5g',$fcr[$iclus][$jclus]) . "*" . sprintf('%.5e',$coll_coef[$iclus][$jclus]);
 					}else{
 						$value_string = sprintf('%.14e',$coll_coef[$iclus][$jclus]);
 					}
