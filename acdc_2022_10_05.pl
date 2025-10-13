@@ -210,6 +210,7 @@ my($l_jlim,$nlim,$jlim_sizes_list,$l_j_in,$j_in_function);
 my($reactions_in_clusters_file,@cluster_reactions,$n_react_in_clust,$l_reac_in_clus);
 my($n_react,$n_prod,@comp_react,@comp_prod,$rate_fwd,$rate_bck,@needed_mols,@forbidden_mols);
 my($n_reacting_W,$n_formed_W,$n_catalyzing_W,$l_forbidden_W);
+my($l_boundary_reaction,$reactions_log_file,$REACTIONS_LOG);
 
 ################################################################################
 ################################################################################
@@ -272,6 +273,7 @@ $output_file_name_fortran = 'acdc_equations.f90';
 $system_file_name_fortran = 'acdc_system.f90';
 $flux_file_name = 'dofluxes.m';
 $j_file_name = 'formationrate.m';
+$reactions_log_file = 'reactions.log';
 $append_to_file_names = '';
 $append_to_eq = '';
 $append_to_syst = '';
@@ -2677,6 +2679,15 @@ if(!$lloop){
 ################################################################################
 ################################################################################
 
+	if ($reactions_log_file ne ''){
+		open($REACTIONS_LOG, ">$reactions_log_file") || die "\nCould not open reactions log file $reactions_log_file\n\n";
+		for($iclus=1;$iclus<=$max_n_flux;$iclus++){
+			print $REACTIONS_LOG "Cluster $iclus: $label[$iclus], $comments[$iclus]\n";
+		}
+		print $REACTIONS_LOG "\n";
+
+	}
+
 	EQUATION: for($iclus=1;$iclus<=$max_cluster_number;$iclus++){
 
 		$iclus_label=$label[$iclus];
@@ -2696,7 +2707,9 @@ if(!$lloop){
 			$coll_coef_temp='';
 			$evap_coef_temp='';
 			$str_temp = '';
-		
+			$kclus_label = '';
+			$l_boundary_reaction = 0;
+			# print "iclus_label: $iclus_label, jclus_label: $jclus_label:\n";
 			# If the collision is forbidden, forget about it.
 			if($l_nonstandard_allowed && $l_coll_not_used[$iclus][$jclus]){
 				$valid_coll=0;
@@ -2821,14 +2834,17 @@ if(!$lloop){
 								print "\n";
 							}
 						}
-					}elsif($valid_coll && $l_print_boundary){
-						print "Brought back to boundary: $iclus_label + $jclus_label -> $str_temp -> $combined";
-						for($imol=0;$imol<$nmol_types;$imol++){
-							if($nmonomers{$molecule_name[$imol]}>0){
-								print " + $nmonomers{$molecule_name[$imol]} $molecule_name[$imol]";
+					}elsif($valid_coll){
+						$l_boundary_reaction = 1;
+						if ($l_print_boundary){
+							print "Brought back to boundary: $iclus_label + $jclus_label -> $str_temp -> $combined";
+							for($imol=0;$imol<$nmol_types;$imol++){
+								if($nmonomers{$molecule_name[$imol]}>0){
+									print " + $nmonomers{$molecule_name[$imol]} $molecule_name[$imol]";
+								}
 							}
+							print "\n";
 						}
-						print "\n";
 					}
 				}
 
@@ -2841,7 +2857,40 @@ if(!$lloop){
 				}
 			}
 
-################################################################################
+		$kclus_label = $label[$kclus];
+		# print "\t valid_coll: $valid_coll, valid: $valid, valid_evap: $valid_evap\n";
+		# print "\t combined: $combined, lout: $lout, %nmonomers: %nmonomers,\n";
+		# print "\t kclus: $kclus\n";
+		if ($lout == 0 && !$l_boundary_reaction){
+			if ($valid_coll){
+				print $REACTIONS_LOG "REACTION\tcollision\t$iclus_label\t$jclus_label\t$kclus_label\n";
+			}
+			if ($valid_evap){
+				print $REACTIONS_LOG "REACTION\tevaporation\t$kclus_label\t$iclus_label\t$jclus_label\n";
+			}
+		}
+		if ($lout==1){
+			print $REACTIONS_LOG "REACTION\tout_neu\t$iclus_label\t$jclus_label\t$combined\n";
+		}
+		if ($lout==2){
+			print $REACTIONS_LOG "REACTION\tout_neg\t$iclus_label\t$jclus_label\t$combined\n";
+		}
+		if ($lout==3){
+			print $REACTIONS_LOG "REACTION\tout_pos\t$iclus_label\t$jclus_label\t$combined\n";
+		}
+		if ($l_boundary_reaction){
+			print $REACTIONS_LOG "REACTION\tboundary\t$iclus_label\t$jclus_label\t$str_temp\t$combined\t";
+			for($imol=0;$imol<$nmol_types;$imol++){
+							if($nmonomers{$molecule_name[$imol]}>0){
+								print $REACTIONS_LOG "$nmonomers{$molecule_name[$imol]}\t$molecule_name[$imol]";
+							}
+						}
+			print $REACTIONS_LOG "\n";
+		}
+
+
+#############################################################################
+###
 ################################################################################
 ##      6.2 Save the collision term if the collision can happen               ##
 ################################################################################
@@ -10639,6 +10688,12 @@ if(!$lsilent){
     }
     print "###########################################################\n";
 }
+
+if($reactions_log_file){
+    close($REACTIONS_LOG);
+    print "Reactions logged to: $reactions_log_file\n";
+}
+
 
 ################################################################
 ####                 END MAIN PROGRAM                       ####
