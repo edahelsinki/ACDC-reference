@@ -2861,7 +2861,10 @@ if(!$lloop){
 		# print "\t valid_coll: $valid_coll, valid: $valid, valid_evap: $valid_evap\n";
 		# print "\t combined: $combined, lout: $lout, %nmonomers: %nmonomers,\n";
 		# print "\t kclus: $kclus\n";
-		if ($lout == 0 && !$l_boundary_reaction){
+		if ($kclus == $n_flux_rec){
+			print $REACTIONS_LOG "REACTION\trecombination\t$iclus_label\t$jclus_label\n";
+		}
+		if ($lout == 0 && !$l_boundary_reaction && $kclus != $n_flux_rec){
 			if ($valid_coll){
 				print $REACTIONS_LOG "REACTION\tcollision\t$iclus_label\t$jclus_label\t$kclus_label\n";
 			}
