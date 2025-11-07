@@ -16,5 +16,5 @@ acid strength:                   2          -1
 #Criteria for growing out of the simulation:
 out negative 1001    1
 #######################################################################
-coagulation sink        1001      0
-coagulation sink neg    1001      1
+# coagulation sink        1001      0
+# coagulation sink neg    1001      1
