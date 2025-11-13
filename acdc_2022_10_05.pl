@@ -2885,7 +2885,7 @@ if(!$lloop){
 			print $REACTIONS_LOG "REACTION\tboundary\t$iclus_label\t$jclus_label\t$str_temp\t$combined\t";
 			for($imol=0;$imol<$nmol_types;$imol++){
 							if($nmonomers{$molecule_name[$imol]}>0){
-								print $REACTIONS_LOG "$nmonomers{$molecule_name[$imol]}\t$molecule_name[$imol]";
+								print $REACTIONS_LOG "$nmonomers{$molecule_name[$imol]}\t$molecule_name[$imol]\t";
 							}
 						}
 			print $REACTIONS_LOG "\n";
@@ -11008,6 +11008,7 @@ sub check_boundary(){
 	}
 
 	# now we go through the rules to see if any of them are satisfied
+	print "Checking nucleation criteria for cluster $label0\n";
 	for($irule=0;$irule<$n_rules;$irule++){
 		if($charge_clus<0){
 			$lout = 2;
@@ -11019,7 +11020,9 @@ sub check_boundary(){
 			$lout = 1;
 #			print "charge:$charge_clus,\t@n_max_type\n;"
 		}
+		print "\t irule:$irule, rules[$irule]:@{$rules[$irule]}\n";
 		for($imol=0;$imol<$nmol_types;$imol++){
+			print "\t \timol:$imol, temp_array[$imol]:$temp_array[$imol], rules[$irule][$imol]:$rules[$irule][$imol]\n";
 			if($temp_array[$imol]<$rules[$irule][$imol]){
 				$lout = 0;
 			}
